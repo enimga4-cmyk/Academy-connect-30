@@ -201,13 +201,13 @@ export default function AddEditStudentModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center p-0" id="add-edit-student-modal">
-      <div className="absolute inset-0" onClick={onClose} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-2 sm:p-4 overflow-hidden overflow-y-auto" id="add-edit-student-modal">
+      <div className="fixed inset-0" onClick={onClose} />
 
       <form 
         onSubmit={handleSubmit}
         onKeyDown={handleFormKeyDown}
-        className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 shadow-2xl animate-slideUp z-10 flex flex-col gap-4 border border-slate-100 dark:border-slate-800 max-h-[92vh] overflow-y-auto"
+        className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-6 shadow-2xl z-10 flex flex-col gap-4 border border-slate-100 dark:border-slate-800 max-h-[90vh] overflow-y-auto overflow-x-hidden my-auto max-w-full"
       >
         {/* Header */}
         <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-slate-800">

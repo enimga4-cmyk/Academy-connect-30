@@ -25,8 +25,7 @@ import {
 } from "./lib/firestoreService";
 import { deleteFileFromStorage, uploadProfilePhoto } from "./lib/storageService";
 import { supabase } from "./lib/supabaseClient";
-
-const APP_VERSION = "3.6.4";
+import { APP_VERSION } from "./config";
 
 function normalizeStudent(student: Partial<Student> | null | undefined): Student {
   return {
@@ -828,55 +827,42 @@ export default function App() {
 
   // Save profile photo
   const handleSaveProfilePhoto = async (studentId: string, dataUrl: string) => {
+    const studentToUpdate = students.find((s) => s.id === studentId);
+    if (!studentToUpdate) return;
+
+    let updatedStudent: Student;
+
     try {
-      const currentStudent = students.find((s) => s.id === studentId);
-      if (currentStudent && currentStudent.avatarStoragePath) {
+      if (studentToUpdate.avatarStoragePath) {
         // Delete old avatar from storage to avoid orphan files
-        await deleteFileFromStorage(currentStudent.avatarStoragePath);
+        await deleteFileFromStorage(studentToUpdate.avatarStoragePath);
       }
 
-      // Upload base64 image as file to Supabase Storage
+      // Upload base64 image as file to Storage
       const metadata = await uploadProfilePhoto(studentId, dataUrl, `${studentId}_avatar.png`);
 
-      let updated: Student | null = null;
-      setStudents((prev) =>
-        prev.map((s) => {
-          if (s.id === studentId) {
-            updated = {
-              ...s,
-              avatarUrl: metadata.downloadUrl,
-              avatarStorageProvider: "supabase",
-              avatarBucket: metadata.bucket,
-              avatarStoragePath: metadata.storagePath,
-            };
-            return updated;
-          }
-          return s;
-        })
-      );
-
-      setTimeout(async () => {
-        if (updated) await saveStudentDoc(updated);
-      }, 50);
+      updatedStudent = {
+        ...studentToUpdate,
+        avatarUrl: metadata.downloadUrl,
+        avatarStorageProvider: "supabase",
+        avatarBucket: metadata.bucket,
+        avatarStoragePath: metadata.storagePath,
+      };
     } catch (err) {
-      console.error("[App] Failed to save profile photo to Supabase Storage, using local fallback:", err);
-      let updated: Student | null = null;
-      setStudents((prev) =>
-        prev.map((s) => {
-          if (s.id === studentId) {
-            updated = {
-              ...s,
-              avatarUrl: dataUrl,
-            };
-            return updated;
-          }
-          return s;
-        })
-      );
-      setTimeout(async () => {
-        if (updated) await saveStudentDoc(updated);
-      }, 50);
+      console.error("[App] Failed to save profile photo to storage, using dataUrl fallback:", err);
+      updatedStudent = {
+        ...studentToUpdate,
+        avatarUrl: dataUrl,
+      };
     }
+
+    // 1. Save to Firestore / local storage immediately (triggers real-time snapshot sync to all connected clients)
+    await saveStudentDoc(updatedStudent);
+
+    // 2. Update local state
+    setStudents((prev) =>
+      prev.map((s) => (s.id === studentId ? updatedStudent : s))
+    );
   };
 
   // Triggering edit from student list

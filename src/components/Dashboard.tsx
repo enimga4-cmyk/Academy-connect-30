@@ -876,7 +876,7 @@ export default function Dashboard({
               {activePopupId === "revenue" && (
                 <div className="flex flex-col gap-3">
                   <span className="text-[10px] font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
-                    Session Payment Cycles Sheet (March 2026 - March 2027)
+                    Monthly Collection & Dues Sheet (March 2026 - March 2027)
                   </span>
                   
                   {[
@@ -884,38 +884,76 @@ export default function Dashboard({
                     "July 2026", "August 2026", "September 2026", "October 2026", 
                     "November 2026", "December 2026", "January 2027", "February 2027", "March 2027"
                   ].map(month => {
-                    let monthTotal = 0;
-                    const paidStudents: string[] = [];
+                    let monthCollection = 0;
+                    let monthDues = 0;
+
+                    const [mName, yStr] = month.split(" ");
+                    const monthNames = [
+                      "January", "February", "March", "April", "May", "June", 
+                      "July", "August", "September", "October", "November", "December"
+                    ];
+                    const mIdx = monthNames.indexOf(mName);
+                    const year = parseInt(yStr) || 2026;
 
                     students.forEach(s => {
-                      const status = s.feeMonths?.[month];
-                      if (status === "paid") {
-                        monthTotal += s.monthlyFee;
-                        paidStudents.push(s.name);
+                      const regDate = s.registrationDate || "2026-06-01";
+                      let regYear = 2026;
+                      let regMonthIdx = 5;
+
+                      if (regDate.includes("/")) {
+                        const parts = regDate.split("/");
+                        if (parts.length === 3) {
+                          regYear = parseInt(parts[2]) || 2026;
+                          regMonthIdx = (parseInt(parts[1]) || 6) - 1;
+                        }
+                      } else {
+                        const parts = regDate.split("-");
+                        if (parts.length === 3) {
+                          regYear = parseInt(parts[0]) || 2026;
+                          regMonthIdx = (parseInt(parts[1]) || 6) - 1;
+                        }
+                      }
+
+                      const isBeforeRegistration = year < regYear || (year === regYear && mIdx < regMonthIdx);
+                      if (!isBeforeRegistration) {
+                        const status = s.feeMonths?.[month];
+                        if (status === "paid") {
+                          monthCollection += s.monthlyFee;
+                        } else {
+                          monthDues += s.monthlyFee;
+                        }
                       }
                     });
 
-                    if (monthTotal === 0) return null;
+                    if (monthCollection === 0 && monthDues === 0) return null;
 
                     return (
                       <div 
                         key={month}
-                        className="p-3 bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-850 rounded-xl flex flex-col gap-2"
+                        className="p-3 bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-850 rounded-xl flex items-center justify-between"
                       >
-                        <div className="flex justify-between items-center border-b border-dashed border-slate-200 dark:border-slate-850 pb-1.5">
-                          <span className="text-xs font-black text-slate-800 dark:text-slate-100">{month}</span>
-                          <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">₹{monthTotal} Collected</span>
+                        <span className="text-xs font-black text-slate-800 dark:text-slate-100">{month}</span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                            Collection: ₹{monthCollection.toLocaleString("en-IN")}
+                          </span>
+                          <span className="text-xs font-bold text-rose-600 dark:text-rose-400">
+                            Dues: ₹{monthDues.toLocaleString("en-IN")}
+                          </span>
                         </div>
-                        <p className="text-[10px] font-semibold text-slate-400 leading-relaxed">
-                          Paid by: {paidStudents.length > 0 ? paidStudents.join(", ") : "None yet"}
-                        </p>
                       </div>
                     );
                   })}
 
-                  <div className="p-3.5 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100/30 rounded-xl text-center">
-                    <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Cumulative Total Collected</span>
-                    <h3 className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1">₹{stats.totalRevenue.toLocaleString("en-IN")}</h3>
+                  <div className="grid grid-cols-2 gap-2 mt-1">
+                    <div className="p-3 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/30 rounded-xl text-center">
+                      <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Total Collection</span>
+                      <h3 className="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-0.5">₹{stats.totalRevenue.toLocaleString("en-IN")}</h3>
+                    </div>
+                    <div className="p-3 bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100/30 rounded-xl text-center">
+                      <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">Total Dues</span>
+                      <h3 className="text-lg font-black text-rose-600 dark:text-rose-400 mt-0.5">₹{stats.remainingDue.toLocaleString("en-IN")}</h3>
+                    </div>
                   </div>
                 </div>
               )}

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Search, Edit2, Trash2, Plus, AlertCircle, Phone, Calendar, Eye, EyeOff } from "lucide-react";
+import { Search, Edit2, Trash2, Plus, AlertCircle, Phone, Calendar } from "lucide-react";
 import { Student } from "../types";
 import { getMonthsUpToCurrent } from "../utils/monthHelper";
 import StudentAvatar from "./StudentAvatar";
@@ -125,28 +125,34 @@ export default function StudentList({
       return numB - numA;
     });
 
-    return ["All", "Pending", ...classes];
+    return ["All", ...classes];
   }, [students]);
 
   // Filter students by search bar query and active segment tab
   const filteredStudents = useMemo(() => {
     return students.filter((student) => {
       // Tab segregation logic
-      if (activeTab === "Pending") {
-        const overdue = getUnpaidOverdueMonths(student);
-        if (overdue.length === 0) return false;
-      } else if (activeTab !== "All" && student.classGrade !== activeTab) {
+      if (activeTab !== "All" && student.classGrade !== activeTab) {
         return false;
       }
       
       // Search query filter
-      const term = searchTerm.toLowerCase();
+      const term = searchTerm.trim().toLowerCase();
       if (!term) return true;
+
+      const termDigits = term.replace(/[^0-9]/g, "");
+      const classDigits = student.classGrade.replace(/[^0-9]/g, "");
+
+      const matchesClass = 
+        student.classGrade.toLowerCase().includes(term) ||
+        (termDigits.length > 0 && classDigits === termDigits) ||
+        (termDigits.length > 0 && student.classGrade.toLowerCase().includes(`class ${termDigits}`)) ||
+        (termDigits.length > 0 && student.classGrade.toLowerCase().includes(`grade ${termDigits}`));
 
       return (
         student.name.toLowerCase().includes(term) ||
         student.phone.toLowerCase().includes(term) ||
-        student.classGrade.toLowerCase().includes(term)
+        matchesClass
       );
     });
   }, [students, searchTerm, activeTab]);
@@ -164,7 +170,7 @@ export default function StudentList({
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
     if (onFilterChange) {
-      onFilterChange(tab === "Pending" ? "Pending" : "All");
+      onFilterChange("All");
     }
   };
 
@@ -173,7 +179,7 @@ export default function StudentList({
       {/* Title */}
       <div className="border-b border-slate-100 dark:border-slate-800 pb-4">
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800 dark:text-slate-100 mt-0.5" id="students-title">
-          My Students
+          STUDENT DIRECTORY
         </h1>
       </div>
 
@@ -207,14 +213,7 @@ export default function StudentList({
               }`}
               id={`tab-${tab.replace(" ", "-")}`}
             >
-              {tab === "Pending" ? (
-                <span className="flex items-center gap-1">
-                  <span>Pending</span>
-                  <span className="bg-rose-100 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 text-[10px] px-1.5 py-0.5 rounded-full font-mono">
-                    {students.filter(s => getUnpaidOverdueMonths(s).length > 0).length}
-                  </span>
-                </span>
-              ) : tab}
+              {tab}
             </button>
           );
         })}
@@ -266,20 +265,6 @@ export default function StudentList({
                       <span>{student.classGrade}</span>
                       <span>•</span>
                       <span>₹{student.monthlyFee}/mo</span>
-                      <span>•</span>
-                      <span className="inline-flex items-center gap-1 bg-slate-50 dark:bg-slate-800 px-1.5 py-0.5 rounded-md border border-slate-100 dark:border-slate-800">
-                        <span>Key: {showPasswords[student.id] ? (student.password || "N/A") : "••••••••"}</span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowPasswords(prev => ({ ...prev, [student.id]: !prev[student.id] }));
-                          }}
-                          className="p-0.5 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
-                          title={showPasswords[student.id] ? "Hide password" : "Show password"}
-                        >
-                          {showPasswords[student.id] ? <EyeOff className="w-3 h-3 text-slate-500 dark:text-slate-400" /> : <Eye className="w-3 h-3 text-slate-500 dark:text-slate-400" />}
-                        </button>
-                      </span>
                     </div>
 
                     {/* Pending billing banner warning */}

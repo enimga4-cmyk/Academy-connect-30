@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { APP_VERSION } from "../config";
 import StudentAvatar from "./StudentAvatar";
 import {
   BookOpen,
@@ -115,7 +116,7 @@ export function generateSubjectPdfReport(student: Student, subject: string, note
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.text(`Generated on: ${currentDate}`, 14, 29);
-  doc.text(`App Version: 3.6.2`, 14, 34);
+  doc.text(`App Version: ${APP_VERSION}`, 14, 34);
 
   // Student & Subject Info Section
   doc.setTextColor(15, 23, 42); // slate-900
@@ -749,7 +750,7 @@ function StudentHeader({ student }: StudentHeaderProps) {
         </span>
       </div>
       <div className="rounded-full border border-slate-200/70 bg-slate-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-slate-500">
-        v3.6.2
+        v{APP_VERSION}
       </div>
     </div>
   );

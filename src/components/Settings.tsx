@@ -3,7 +3,6 @@ import {
   Sun, 
   Moon, 
   Smartphone, 
-  QrCode as QrIcon, 
   Upload, 
   Trash2, 
   RefreshCcw,
@@ -17,9 +16,9 @@ import {
   X,
   Building2,
   Share2,
-  Palette,
-  Megaphone
+  Palette
 } from "lucide-react";
+import { APP_VERSION } from "../config";
 import { signInWithGoogleDrive, backupToGoogleDrive, restoreFromGoogleDrive } from "../lib/googleDrive";
 import { generateAnnualReport } from "../utils/reportGenerator";
 import { 
@@ -690,255 +689,6 @@ export default function Settings({
               </div>
             </div>
 
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm flex flex-col gap-4">
-              <div className="flex flex-col">
-                <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Megaphone className="w-4 h-4 text-indigo-500" />
-                  Academy Announcements
-                </span>
-                <span className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                  Post news, schedules, or reminders for all students.
-                </span>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2 items-center mt-1">
-                <input
-                  type="text"
-                  placeholder="Enter announcement text..."
-                  value={newAnnouncement}
-                  onChange={(e) => setNewAnnouncement(e.target.value)}
-                  className="flex-1 w-full px-4 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-100 text-sm font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500/10 h-[42px]"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddAnnouncement}
-                  className="w-full sm:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold rounded-xl text-xs uppercase tracking-wider h-[42px] transition-all cursor-pointer flex items-center justify-center gap-1 shrink-0"
-                >
-                  Post
-                </button>
-              </div>
-
-              <div className="mt-2 max-h-[220px] overflow-y-auto flex flex-col gap-2 pr-1">
-                {announcements.length === 0 ? (
-                  <p className="text-xs text-slate-400 italic">No announcements posted yet.</p>
-                ) : (
-                  announcements.map((ann, idx) => (
-                    <div key={ann.id || `ann-${idx}`} className="flex items-start justify-between gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-950/20 text-xs text-slate-700 dark:text-slate-300 animate-fadeIn">
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-slate-850 dark:text-slate-200">{ann.text}</p>
-                        <span className="text-[10px] text-slate-400 mt-1 block">Posted on: {ann.date}</span>
-                      </div>
-                      <button
-                        onClick={() => handleDeleteAnnouncement(ann.id)}
-                        className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/20 p-1.5 rounded-lg shrink-0 transition"
-                        title="Delete announcement"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* SECTION: Billing QR Code */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm flex flex-col gap-4">
-              <div className="flex justify-between items-start">
-                <div className="flex flex-col">
-                  <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <QrIcon className="w-4 h-4" />
-                    Payment QR Code
-                  </span>
-                </div>
-              </div>
-
-              <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleQrUpload} 
-                accept="image/*" 
-                className="hidden" 
-              />
-
-              {qrCode ? (
-                <div className="flex flex-col items-center gap-4 p-4 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-slate-100 dark:border-slate-900/50">
-                  <div className="flex h-48 w-48 items-center justify-center overflow-hidden rounded-[24px] border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-800">
-                    <img 
-                      src={qrCode} 
-                      alt="Billing QR" 
-                      className="h-full w-full rounded-[18px] object-contain" 
-                    />
-                  </div>
-                  <div className="flex gap-2.5 w-full">
-                    <button
-                      onClick={() => fileInputRef.current?.click()}
-                      className="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200/50 dark:border-slate-700/50"
-                    >
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>Upload</span>
-                    </button>
-
-                    {showRemoveQrConfirm ? (
-                      <div className="flex gap-1">
-                        <button
-                          onClick={handleRemoveQr}
-                          className="py-2 px-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[10px] font-black uppercase transition-all cursor-pointer"
-                        >
-                          Confirm
-                        </button>
-                        <button
-                          onClick={() => setShowRemoveQrConfirm(false)}
-                          className="py-2 px-2.5 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-xl text-[10px] font-bold transition-all cursor-pointer"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        onClick={() => setShowRemoveQrConfirm(true)}
-                        className="py-2 px-3 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-rose-100/30"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="w-full py-8 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-blue-500 dark:hover:border-blue-600 hover:bg-blue-50/20 dark:hover:bg-blue-950/10 rounded-2xl flex flex-col items-center justify-center gap-2 text-slate-500 dark:text-slate-400 font-bold text-xs transition-all cursor-pointer group"
-                >
-                  <div className="p-2.5 bg-slate-50 dark:bg-slate-950/40 rounded-full group-hover:scale-105 transition-all">
-                    <QrIcon className="w-5 h-5 text-slate-400 dark:text-slate-500" />
-                  </div>
-                  <span className="text-slate-700 dark:text-slate-300">Upload GPay/PhonePe QR Image</span>
-                  <span className="text-[10px] text-slate-400 font-medium">PNG, JPG, or JPEG</span>
-                </button>
-              )}
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm flex flex-col gap-4">
-              <div className="flex flex-col">
-                <span className="text-xs font-extrabold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-                  <Cloud className="w-4 h-4 text-blue-500" />
-                  Google Drive Cloud Sync & Data Recovery
-                </span>
-                <span className="text-xs text-slate-400 dark:text-slate-500 mt-1 leading-relaxed">
-                  Enable data recovery by storing your tuition records securely in your Google Drive cloud account.
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-3.5">
-                {/* Field: Backup Email address */}
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-blue-500" />
-                    Target Email Address for Ledger Tracking
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="e.g. sumitprasadsaha@gmail.com"
-                    value={backupEmail}
-                    onChange={(e) => saveEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-800 dark:text-slate-100 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500/20 text-sm font-semibold transition-all"
-                    required
-                  />
-                </div>
-
-                {/* Cloud Action Buttons */}
-                <div className="flex flex-col gap-2 bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-105 dark:border-slate-900/50">
-                  <span className="text-[10px] font-black uppercase text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                    Cloud Recovery Dashboard
-                  </span>
-                  
-                  {connectedUser ? (
-                    <div className="flex flex-col gap-2.5 mt-2">
-                      <div className="flex items-center justify-between p-2.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/20 rounded-xl text-xs font-bold text-emerald-700 dark:text-emerald-400">
-                        <span className="truncate">Connected: {connectedUser.email}</span>
-                        <button 
-                          onClick={() => { setConnectedUser(null); setGoogleAccessToken(null); }} 
-                          className="text-[10px] uppercase font-black tracking-widest text-rose-500 hover:text-rose-600 pl-2 cursor-pointer"
-                        >
-                          Disconnect
-                        </button>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={handleDriveBackup}
-                          disabled={isDriveOperating}
-                          className="py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 transition-all shadow-xs"
-                        >
-                          <Cloud className="w-3.5 h-3.5" />
-                          <span>{isDriveOperating ? "Backing up..." : "Backup to Drive"}</span>
-                        </button>
-                        <button
-                          onClick={handleDriveRestore}
-                          disabled={isDriveOperating}
-                          className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 transition-all shadow-xs"
-                        >
-                          <RefreshCcw className="w-3.5 h-3.5" />
-                          <span>{isDriveOperating ? "Restoring..." : "Restore from Drive"}</span>
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-2 mt-1">
-                      <p className="text-[11px] text-slate-400 leading-relaxed mb-1.5">
-                        Connect your tuition manager to authorize secure cloud backup directories.
-                      </p>
-                      <button
-                        onClick={handleConnectDrive}
-                        disabled={isDriveOperating}
-                        className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 cursor-pointer shadow-md shadow-blue-500/10 transition-all"
-                      >
-                        <Cloud className="w-4 h-4" />
-                        <span>{isDriveOperating ? "Authenticating..." : "Connect Google Drive account"}</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Robust 100% Offline fallback backup (Iframe-proof) */}
-                <div className="flex flex-col gap-2.5 bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl border border-slate-105 dark:border-slate-900/50 mt-1">
-                  <span className="text-[10px] font-black uppercase text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
-                    <FileCheck className="w-4 h-4" />
-                    Offline Manual JSON Backup (100% Reliable Fallback)
-                  </span>
-                  <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-relaxed">
-                    If browser iframe security blocks the Google Login popup, download the raw JSON backup file to your device and import it instantly anytime!
-                  </p>
-
-                  <input 
-                    type="file" 
-                    ref={jsonImportInputRef} 
-                    onChange={handleImportJSON} 
-                    accept=".json" 
-                    className="hidden" 
-                  />
-
-                  <div className="grid grid-cols-2 gap-2 mt-1">
-                    <button
-                      onClick={handleExportJSON}
-                      className="py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200/50 dark:border-slate-750"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>Download Backup</span>
-                    </button>
-                    <button
-                      onClick={() => jsonImportInputRef.current?.click()}
-                      className="py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border border-slate-200/50 dark:border-slate-750"
-                    >
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>Import Backup</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* SECTION 4: Annual Financial & Audit Report */}
             <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm flex flex-col gap-4">
               <div className="flex flex-col">
@@ -980,50 +730,6 @@ export default function Settings({
               </div>
             </div>
 
-            {/* SECTION 5: System Operations (Danger/Reset) */}
-            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm flex flex-col gap-4">
-              <span className="text-xs font-extrabold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
-                <RefreshCcw className="w-4 h-4" />
-                Factory Reset & Delete All Data
-              </span>
-
-              <div className="flex flex-col gap-3">
-                <p className="text-xs text-slate-400 dark:text-slate-500 leading-relaxed">
-                  This will permanently delete all student rosters, attendance logs, billing states, recorded dues, revenue data, and payment QR codes. The application will start completely clean.
-                </p>
-                
-                {showResetConfirm ? (
-                  <div className="flex flex-col gap-2 p-3 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-xl animate-fadeIn">
-                    <span className="text-[11px] font-black text-rose-600 dark:text-rose-400">
-                      This will erase ALL current student ledger entries! Are you sure?
-                    </span>
-                    <div className="flex gap-2 mt-1">
-                      <button
-                        onClick={handleReset}
-                        className="flex-1 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-black uppercase transition-all cursor-pointer"
-                      >
-                        Yes, Reset Everything
-                      </button>
-                      <button
-                        onClick={() => setShowResetConfirm(false)}
-                        className="px-4 py-1.5 bg-slate-200 dark:bg-slate-850 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-bold transition-all cursor-pointer"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <button
-                    onClick={() => setShowResetConfirm(true)}
-                    className="mt-1 w-full py-3 bg-rose-50 dark:bg-rose-950/10 border border-rose-200/50 dark:border-rose-900/30 hover:bg-rose-100 text-rose-600 dark:text-rose-400 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
-                    id="btn-reset-data"
-                  >
-                    <RefreshCcw className="w-3.5 h-3.5" />
-                    <span>Reset & Start Clean</span>
-                  </button>
-                )}
-              </div>
-            </div>
             {/* SECTION 6: Administrator Settings Panel (Admins Only) */}
             {isAdmin && (
               <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-5 shadow-sm flex flex-col gap-4">
@@ -1227,7 +933,7 @@ export default function Settings({
             Developed and Designed by Sumit
           </span>
           <span className="text-[10px] font-black tracking-[0.15em] text-slate-500 dark:text-slate-450 uppercase">Academy Connect</span>
-          <span className="text-[8px] font-extrabold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-500">Version 3.6.0</span>
+          <span className="text-[8px] font-extrabold uppercase tracking-[0.25em] text-slate-400 dark:text-slate-500">Version {APP_VERSION}</span>
           <span className="text-[8px] font-black tracking-widest text-slate-500 dark:text-slate-400 uppercase">—POWERED BY ANDROID—</span>
         </div>
       </div>

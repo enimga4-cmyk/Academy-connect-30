@@ -142,6 +142,7 @@ export default function StudentDetails({
     const today = new Date();
     return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`; // e.g. "2026-07"
   });
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null);
   const [showAllDetailsModal, setShowAllDetailsModal] = useState(false);
   const [showPassInDetailsModal, setShowPassInDetailsModal] = useState(false);
 
