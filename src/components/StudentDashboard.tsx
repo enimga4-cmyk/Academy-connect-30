@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import StudentAvatar from "./StudentAvatar";
 import {
   BookOpen,
   CreditCard,
@@ -67,7 +68,6 @@ import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import { getPdfDownloadUrl } from "../lib/pdfService";
 import { supabase } from "../lib/supabaseClient";
 import ChapterProgressBottomSheet from "./ChapterProgressBottomSheet";
-import SubjectSummaryCard from "./SubjectSummaryCard";
 import { getChapterProgressRecord, getStatusConfig } from "../utils/chapterProgressHelper";
 import { ChapterProgressData } from "../types";
 import { Sparkles } from "lucide-react";
@@ -115,7 +115,7 @@ export function generateSubjectPdfReport(student: Student, subject: string, note
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
   doc.text(`Generated on: ${currentDate}`, 14, 29);
-  doc.text(`App Version: 3.6.1`, 14, 34);
+  doc.text(`App Version: 3.6.2`, 14, 34);
 
   // Student & Subject Info Section
   doc.setTextColor(15, 23, 42); // slate-900
@@ -749,7 +749,7 @@ function StudentHeader({ student }: StudentHeaderProps) {
         </span>
       </div>
       <div className="rounded-full border border-slate-200/70 bg-slate-50 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.24em] text-slate-500">
-        v3.6.1
+        v3.6.2
       </div>
     </div>
   );
@@ -805,16 +805,16 @@ function HeroCard({ student, onOpenAvatarModal, onOpenStudentDetails, formatDate
               event.stopPropagation();
               onOpenAvatarModal();
             }}
-            className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border-3 border-white/80 bg-white/10 shadow-none transition-transform duration-200 hover:scale-105 sm:h-18 sm:w-18"
+            className="group relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full border-3 border-white/80 bg-white/10 shadow-sm transition-transform duration-200 hover:scale-105 sm:h-18 sm:w-18 cursor-pointer"
             title="Upload and edit photo"
           >
-            {student.avatarUrl ? (
-              <img src={student.avatarUrl} alt={student.name} className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-lg font-black">{getInitials(student.name)}</span>
-            )}
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-950/20 opacity-0 transition-opacity duration-200 hover:opacity-100">
-              <Camera className="h-4 w-4 text-white" />
+            <StudentAvatar
+              student={student}
+              className="w-full h-full rounded-full"
+              initialsClassName="text-lg font-black text-white"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-950/30 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              <Camera className="h-4 w-4 text-white drop-shadow-sm" />
             </div>
           </button>
 
@@ -1722,15 +1722,6 @@ export function StudentMyTab({
                     <span>{selectedNotes.length} Chapters</span>
                   </div>
                 </div>
-              </div>
-
-              {/* Subject Summary Card */}
-              <div className="mb-3 shrink-0">
-                <SubjectSummaryCard
-                  subject={selectedSubject}
-                  notes={selectedNotes}
-                  chapterProgressMap={student.chapterProgress}
-                />
               </div>
 
               <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-3 scrollbar-thin" id="study-right-notes">

@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from "react";
 import { Search, Edit2, Trash2, Plus, AlertCircle, Phone, Calendar, Eye, EyeOff } from "lucide-react";
 import { Student } from "../types";
 import { getMonthsUpToCurrent } from "../utils/monthHelper";
+import StudentAvatar from "./StudentAvatar";
 
 interface StudentListProps {
   students: Student[];
@@ -241,27 +242,17 @@ export default function StudentList({
                 {/* Left side: Avatar & info */}
                 <div className="flex items-center gap-3.5">
                   {/* Photo or initials fallback */}
-                  <div
-                    className={`w-11 h-11 rounded-xl flex items-center justify-center text-white font-extrabold text-sm relative shrink-0 ${
-                      student.avatarUrl ? "bg-slate-100" : (student.avatarColor || "bg-blue-600")
-                    }`}
-                    id={`student-avatar-${student.id}`}
-                  >
-                    {student.avatarUrl ? (
-                      <img
-                        src={student.avatarUrl}
-                        alt={student.name}
-                        className="w-full h-full rounded-xl object-cover"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      initials
-                    )}
-                    
+                  <div className="relative shrink-0">
+                    <StudentAvatar
+                      student={student}
+                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border border-slate-200 dark:border-slate-700/80 shadow-xs"
+                      initialsClassName="text-base sm:text-lg font-black"
+                      id={`student-avatar-${student.id}`}
+                    />
                     {/* Tiny visual exclamation indicator if payment is overdue */}
                     {isPending && (
-                      <span className="absolute -top-1 -right-1 bg-rose-600 text-white p-0.5 rounded-full border-2 border-white dark:border-slate-900">
-                        <AlertCircle className="w-2.5 h-2.5 stroke-[3]" />
+                      <span className="absolute -top-0.5 -right-0.5 bg-rose-600 text-white p-0.5 rounded-full border-2 border-white dark:border-slate-900 z-10 shadow-xs">
+                        <AlertCircle className="w-3 h-3 stroke-[3]" />
                       </span>
                     )}
                   </div>

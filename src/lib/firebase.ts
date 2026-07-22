@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 export const firebaseConfig = {
@@ -120,6 +120,20 @@ export async function createNewUserAuth(email: string, password: string): Promis
     // Clean up secondary auth
     await secondaryAuth.signOut();
     return uid;
+  } catch (err: any) {
+    const errCode = (err?.code || "").toLowerCase();
+    const errMsg = (err?.message || "").toLowerCase();
+    if (errCode.includes("email-already-in-use") || errMsg.includes("email-already-in-use")) {
+      try {
+        const cred = await signInWithEmailAndPassword(secondaryAuth, email, password);
+        const uid = cred.user.uid;
+        await secondaryAuth.signOut();
+        return uid;
+      } catch {
+        throw err;
+      }
+    }
+    throw err;
   } finally {
     // We don't delete the app dynamically as it is lightweight, but signing out is sufficient.
   }

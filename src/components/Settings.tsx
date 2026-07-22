@@ -722,8 +722,8 @@ export default function Settings({
                 {announcements.length === 0 ? (
                   <p className="text-xs text-slate-400 italic">No announcements posted yet.</p>
                 ) : (
-                  announcements.map((ann) => (
-                    <div key={ann.id} className="flex items-start justify-between gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-950/20 text-xs text-slate-700 dark:text-slate-300 animate-fadeIn">
+                  announcements.map((ann, idx) => (
+                    <div key={ann.id || `ann-${idx}`} className="flex items-start justify-between gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-950/20 text-xs text-slate-700 dark:text-slate-300 animate-fadeIn">
                       <div className="min-w-0 flex-1">
                         <p className="font-semibold text-slate-850 dark:text-slate-200">{ann.text}</p>
                         <span className="text-[10px] text-slate-400 mt-1 block">Posted on: {ann.date}</span>
@@ -1150,9 +1150,9 @@ export default function Settings({
                       No registered administrators found.
                     </div>
                   ) : (
-                    admins.map((adminItem) => (
+                    admins.map((adminItem, index) => (
                       <div 
-                        key={adminItem.uid}
+                        key={adminItem.uid || adminItem.id || adminItem.email || `admin-${index}`}
                         className="p-3.5 bg-slate-50 dark:bg-slate-950/30 border border-slate-100 dark:border-slate-900/40 rounded-xl flex items-center justify-between gap-4"
                       >
                         <div className="flex flex-col gap-0.5 min-w-0">

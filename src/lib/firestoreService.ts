@@ -512,7 +512,7 @@ export async function getAllAdmins(): Promise<any[]> {
     snap.forEach((d) => {
       const u = d.data();
       if (u.role === "Admin" || u.role === "admin") {
-        admins.push(u);
+        admins.push({ ...u, uid: u.uid || d.id, id: d.id });
       }
     });
     return admins;

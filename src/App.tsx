@@ -26,7 +26,7 @@ import {
 import { deleteFileFromStorage, uploadProfilePhoto } from "./lib/storageService";
 import { supabase } from "./lib/supabaseClient";
 
-const APP_VERSION = "3.6.0";
+const APP_VERSION = "3.6.4";
 
 function normalizeStudent(student: Partial<Student> | null | undefined): Student {
   return {

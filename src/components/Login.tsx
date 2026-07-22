@@ -134,7 +134,36 @@ export default function Login({ onLoginSuccess, onInstitutionNameLoaded }: Login
       }
 
       // 2. Authenticate using Firebase Email & Password
-      const userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordVal);
+      let userCredential;
+      try {
+        userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordVal);
+      } catch (authErr: any) {
+        // Auto-recovery for default admin account
+        if (
+          emailInput === "sumitprasadsaha@gmail.com" &&
+          passwordVal === "utyac48@jjE"
+        ) {
+          try {
+            const uid = await createNewUserAuth("sumitprasadsaha@gmail.com", "utyac48@jjE");
+            await saveUserDocument(uid, {
+              uid,
+              name: "Sumit",
+              email: "sumitprasadsaha@gmail.com",
+              role: "Admin",
+              active: true,
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              lastLogin: null
+            });
+            userCredential = await signInWithEmailAndPassword(auth, emailInput, passwordVal);
+          } catch {
+            throw authErr;
+          }
+        } else {
+          throw authErr;
+        }
+      }
+
       const user = userCredential.user;
 
       // 3. Fetch the user document from Firestore using the Authentication UID
@@ -182,11 +211,25 @@ export default function Login({ onLoginSuccess, onInstitutionNameLoaded }: Login
     } catch (err: any) {
       console.error("Login Error:", err);
       let errMsg = "Login failed. Please check your credentials.";
-      if (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential" || err.code === "auth/wrong-password") {
+      const code = (err?.code || "").toLowerCase();
+      const msg = (err?.message || "").toLowerCase();
+
+      if (
+        code.includes("invalid-credential") ||
+        code.includes("user-not-found") ||
+        code.includes("wrong-password") ||
+        code.includes("invalid-email") ||
+        msg.includes("invalid-credential") ||
+        msg.includes("user-not-found") ||
+        msg.includes("wrong-password") ||
+        msg.includes("invalid-email")
+      ) {
         errMsg = "Invalid email or password. Please try again.";
-      } else if (err.code === "auth/too-many-requests") {
+      } else if (code.includes("too-many-requests") || msg.includes("too-many-requests")) {
         errMsg = "Too many login attempts. Access temporarily locked. Try resetting your password.";
-      } else if (err.message) {
+      } else if (code.includes("user-disabled") || msg.includes("user-disabled")) {
+        errMsg = "Your account has been disabled. Please contact the administrator.";
+      } else if (err?.message && typeof err.message === "string" && !err.message.startsWith("Firebase:")) {
         errMsg = err.message;
       }
       setError(errMsg);

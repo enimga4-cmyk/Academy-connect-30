@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
+import StudentAvatar from "./StudentAvatar";
 import { getInstitutionName, saveStudentDoc } from "../lib/firestoreService";
 import { uploadReportToStorage } from "../lib/storageService";
 import { 
@@ -819,17 +820,12 @@ export default function StudentDetails({
       <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-4 text-white flex flex-col gap-3 relative overflow-hidden shadow-lg border border-blue-500/10">
         <div className="flex items-center gap-3">
           <div onClick={onOpenAvatarModal} className="relative cursor-pointer group shrink-0" id="avatar-container">
-            <div className="w-14 h-14 rounded-full border-2 border-white/20 flex items-center justify-center text-slate-800 font-extrabold text-lg bg-white shadow-md transition-all duration-300 group-hover:scale-[1.02] overflow-hidden">
-              {student.avatarUrl ? (
-                <img
-                  src={student.avatarUrl}
-                  alt={student.name}
-                  className="w-full h-full rounded-full object-cover"
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
-                <span className="text-blue-700 text-xl">{initials}</span>
-              )}
+            <div className="w-14 h-14 rounded-full border-2 border-white/80 flex items-center justify-center bg-white shadow-md transition-all duration-300 group-hover:scale-[1.02] overflow-hidden">
+              <StudentAvatar
+                student={student}
+                className="w-full h-full rounded-full"
+                initialsClassName="text-xl font-extrabold text-blue-700"
+              />
             </div>
             <div className="absolute -bottom-0.5 -right-0.5 p-1 bg-blue-600 border border-white text-white rounded-full group-hover:scale-105 transition-all shadow-sm">
               <Camera className="w-3 h-3 stroke-[2.5]" />
@@ -1941,17 +1937,12 @@ export default function StudentDetails({
             <div className="flex flex-col gap-4 mt-4 overflow-y-auto pr-1 flex-1 min-h-0" id="all-details-scroll-body">
               {/* Profile Overview */}
               <div className="bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800/60 rounded-2xl p-4 flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full border border-slate-200/50 flex items-center justify-center text-slate-800 font-extrabold text-lg bg-white dark:bg-slate-800 shrink-0 overflow-hidden">
-                  {student.avatarUrl ? (
-                    <img
-                      src={student.avatarUrl}
-                      alt={student.name}
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <span className="text-blue-600 dark:text-blue-400 text-xl">{initials}</span>
-                  )}
+                <div className="w-14 h-14 rounded-full border border-slate-200/80 flex items-center justify-center bg-white dark:bg-slate-800 shrink-0 overflow-hidden">
+                  <StudentAvatar
+                    student={student}
+                    className="w-full h-full rounded-full"
+                    initialsClassName="text-xl font-extrabold text-blue-600 dark:text-blue-400"
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-black text-slate-900 dark:text-slate-100 leading-tight truncate">{student.name}</p>
